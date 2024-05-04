@@ -1,22 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import placeholderImg from '../placeholder-square.png';
 import { Button } from 'react-bootstrap';
 import BoothModal from './BoothModal';
 
 function Stamp({ stamp }) {
-  const navigate = useNavigate();
   const [modalShow, setModalShow] = useState(false);
-
-  const handleImageClick = () => {
-    navigate(`/booth/${stamp.id}`);
-  };
 
   return (
     <div className="stamp">
       <div className="stamp-body">
-        <div className="stamp-img" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
-          <img src={placeholderImg} alt="Exhibit"
+        <div className="stamp-img" style={{ cursor: 'pointer' }}>
+          <img src={`/server-static/stamp-icons/${stamp.uuid}.jpeg`} alt="Exhibit"
             style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
         </div>
         <div className='stamp-no-mobile'>
