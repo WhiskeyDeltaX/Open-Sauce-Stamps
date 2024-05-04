@@ -8,7 +8,7 @@ async def get_current_user():
     return None
 
 async def get_current_active_admin(current_user: User = Depends(get_current_user)):
-    # if "admin" not in current_user.groups:
+    # if not current_user or "admin" not in current_user.groups:
     #     raise HTTPException(
     #         status_code=status.HTTP_401_UNAUTHORIZED,
     #         detail="The user doesn't have admin privileges"

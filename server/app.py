@@ -22,9 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user.router)
-app.include_router(stamps.router)
-app.include_router(auth.router)
+app.include_router(user.router, prefix="/api/v1", tags=["users"])
+app.include_router(stamps.router, prefix="/api/v1", tags=["stamps"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 
 if __name__ == "__main__":
     import uvicorn

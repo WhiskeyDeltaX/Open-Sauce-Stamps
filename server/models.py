@@ -6,12 +6,12 @@ from datetime import datetime
 class Stamp(BaseModel):
     uuid: UUID4
     exhibitName: str
-    boothNumber: str
-    maker: str
-    youtubeLink: HttpUrl
-    channelName: str
-    qrCode: UUID4
-    description: str
+    boothNumber: str = None
+    maker: str = None
+    youtubeLink: HttpUrl = None
+    channelName: str = None
+    qrCode: UUID4 = None
+    description: str = None
     createdAt: datetime = None
     updatedAt: datetime = None
 

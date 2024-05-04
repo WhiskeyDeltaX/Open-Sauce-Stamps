@@ -8,6 +8,8 @@ from datetime import datetime
 import os
 import qrcode
 from PIL import Image
+import requests
+from io import BytesIO
 
 router = APIRouter()
 
@@ -23,6 +25,13 @@ async def get_stamp_by_uuid(uuid: uuid.UUID):
         raise HTTPException(status_code=404, detail="Stamp not found")
     return stamp
 
+@router.get("/collect/{uuid}", response_model=Stamp)
+async def get_collect_by_uuid(uuid: uuid.UUID):
+    stamp = await stamps_table.find_one({"qrCode": uuid})
+    if not stamp:
+        raise HTTPException(status_code=404, detail="Stamp not found")
+    return stamp
+
 @router.post("/stamps", response_model=Stamp, dependencies=[Depends(get_current_active_admin)])
 async def create_stamp(stamp: Stamp):
     # Generate unique identifiers
@@ -32,12 +41,12 @@ async def create_stamp(stamp: Stamp):
 
     # Generate QR code
     base_url = os.getenv('SITE_BASE_URL', 'http://example.com')
-    qr_content = f"{base_url}/api/collect/{stamp.qrCode}"
+    qr_content = f"{base_url}/collect/{stamp.qrCode}"
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4,
+        box_size=7,
+        border=2,
     )
     qr.add_data(qr_content)
     qr.make(fit=True)
@@ -47,15 +56,38 @@ async def create_stamp(stamp: Stamp):
     logo_path = os.getenv("QR_CODE_IMAGE_PATH")
     if logo_path:
         logo = Image.open(logo_path).convert("RGB")
-        print ("Logo", logo)
         logo = logo.resize((120, 120), Image.LANCZOS)  # Resize logo as per QR code size
         pos = ((qr_img.size[0] - logo.size[0]) // 2, (qr_img.size[1] - logo.size[1]) // 2)
         qr_img.paste(logo, pos)
 
     # Save QR code image
-    qr_code_path = os.getenv("QR_CODE_PATH", "./qr_codes")
+    qr_code_path = os.getenv("QR_CODE_PATH", "./qr-codes")
     qr_filename = f"{qr_code_path}/{stamp.qrCode}.png"
     qr_img.save(qr_filename)
+
+    if stamp.description:
+        response = requests.post(
+            f"https://api.stability.ai/v2beta/stable-image/generate/core",
+            headers={
+                "authorization": f"Bearer {os.getenv('STABILITY_KEY', 'sk-MYAPIKEY')}",
+                "accept": "image/*"
+            },
+            files={"none": ''},
+            data={
+                "prompt": f"Color Artwork chiaroscuro Stamp of {stamp.description[:900]}",
+                "output_format": "jpeg",
+            },
+        )
+
+        if response.status_code == 200:
+            dream_path = os.getenv("DREAM_PATH", "./stamp-icons")
+            dream_image = Image.open(BytesIO(response.content))
+            dream_image = dream_image.resize((512, 512), Image.LANCZOS)
+            dream_image.save(f"{dream_path}/{stamp.uuid}.jpeg", quality=80)
+        else:
+            print("not 200", response.status_code, response.text)
+    else:
+        print("Failed", stamp.description)
 
     # Save stamp to database with additional fields
     stamp.createdAt = datetime.now()
@@ -80,3 +112,12 @@ async def delete_stamp(uuid: uuid.UUID):
     if delete_result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Stamp not found")
     return {"message": "Stamp deleted successfully"}
+
+@router.delete("/stamps", dependencies=[Depends(get_current_active_admin)])
+async def delete_all_stamps():
+    """
+    Deletes all stamps from the database.
+    Access to this endpoint should be restricted to admin users only.
+    """
+    await stamps_table.delete_many({})
+    return {"status": "success", "message": "All stamps have been deleted."}
