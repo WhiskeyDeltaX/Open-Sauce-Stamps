@@ -2,14 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import placeholderImg from '../placeholder-square.png';
 import { Button } from 'react-bootstrap';
+import BoothModal from './BoothModal';
 
 function Stamp({ stamp }) {
   const navigate = useNavigate();
-  const [showDescription, setShowDescription] = useState(false);
-
-  const handleToggleDescription = () => {
-    setShowDescription(!showDescription);
-  };
+  const [modalShow, setModalShow] = useState(false);
 
   const handleImageClick = () => {
     navigate(`/booth/${stamp.id}`);
@@ -33,19 +30,18 @@ function Stamp({ stamp }) {
           <div className="stamp-text">
             <p className="stamp-name">{stamp.exhibitName}</p>
           </div>
-          {showDescription && (
-            <div className="stamp-text">
-              <p>Booth: {stamp.boothNumber}</p>
-              <p>{stamp.description}</p>
-            </div>
-          )}
         </div>
       </div>
-      <div className="stamp-mobile-button d-flex align-items-center justify-content-center w-100">
-        <Button onClick={handleToggleDescription} variant="secondary" className="flex-grow-1">
-          {showDescription ? 'Hide' : 'Expand'}
+      <div className="d-flex align-items-center justify-content-center w-100">
+        <Button onClick={() => setModalShow(true)} variant="secondary" className="flex-grow-1" style={{maxWidth: "300px"}}>
+          More Information
         </Button>
       </div>
+      <BoothModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        stamp={stamp}
+      />
     </div>
   );
 }

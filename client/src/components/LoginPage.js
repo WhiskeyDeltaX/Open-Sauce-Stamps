@@ -3,12 +3,14 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { UserDataContext } from '../contexts/UserDataContext';
 import { Container, Form, Button, Card } from 'react-bootstrap';
 import banner from '../os-banner.jpg';
+import PrivacyPolicyModal from './PrivacyPolicyModal';
 
 function LoginPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const { userData, setUserData } = useContext(UserDataContext);
   const navigate = useNavigate();
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Redirect to stamps page if userData is already present
   if (userData.fullName || userData.email) {
@@ -52,22 +54,31 @@ function LoginPage() {
               <p className="text-muted mb-4">
                 Digital prizes will be distributed via email.
               </p>
-              <Button variant="primary" onClick={handleLogin}>
+              <Button variant="primary" onClick={handleLogin} disabled={!email || !fullName}>
                 Get Started
               </Button>
             </Form>
             <p className="mt-4">
-              <a href="/privacy-policy">Read the Privacy Policy</a>
+              <Button variant="link" onClick={() => setShowPrivacyModal(true)} className="mt-3 privacy-policy">
+                Read the Privacy Policy
+              </Button>
             </p>
             <div className="d-flex align-items-center justify-content-center">
-            <p className="mt-4 text-muted" style={{maxWidth: "400px"}}>
-              Open Sauce is a registered trademark of William Osman, we think. This stamp hunt is an exhibitor-created activity and is not partnered with Open Sauce.
-            </p>
+              <p className="mt-4 text-muted" style={{ maxWidth: "400px" }}>
+                Open Sauce is a registered trademark of William Osman, we think. This stamp hunt is an exhibitor-created activity and is not partnered with Open Sauce.
+              </p>
+            </div>
+            <div className="d-flex align-items-center justify-content-center">
+              <p className="mt-4 text-muted" style={{ maxWidth: "400px" }}>
+                Programmed by WhiskeyDelta
+              </p>
             </div>
           </Card.Body>
         </Card>
       </Container>
       <img src={banner} alt="Decorative" className="bottom-image" />
+      <PrivacyPolicyModal show={showPrivacyModal}
+        handleClose={() => setShowPrivacyModal(false)} />
     </div >
   );
 }

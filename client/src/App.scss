@@ -3,11 +3,23 @@ body {
   font-family: 'Lato', sans-serif;
 }
 
+.modal-content > .modal-header, .modal-content > .modal-footer {
+  background: #EB9722;
+}
+
+.modal-content > .modal-body {
+  background: #FAE5C8;
+}
+
 .login-page {
 
   position: relative;
   min-height: 100vh;
 
+  .privacy-policy {
+    color: black
+  }
+  
   .login-container {
     @media (max-width: 375px) {
       padding: 0.25rem !important; // Corresponds to 'p-1'
@@ -63,13 +75,23 @@ body {
 
 
 .stamp-container {
-  h2 {
+  h1 {
+    font-weight: bold;
     text-align: center;
+  }
+
+  .stamp-top-info {
+    text-align: center;
+    font-size: 1.25rem;
   }
 
   @media (max-width: 375px) {
     padding: 0.25rem !important; // Corresponds to 'p-1'
     padding-top: 1.5rem !important;
+  }
+
+  .privacy-policy {
+    color: black
   }
   
   .stamps {
@@ -119,14 +141,14 @@ body {
       width: 200px;
       height: 200px;
       border: 5px dashed #666666;
-      border-radius: 100%;
+      border-radius: 10px;
       flex-shrink: 0;
       max-width: 100%;
 
       img {
+        border-radius: 10px;
         width: 100%;
         height: 100%;
-        border-radius: 100%;
       }
 
 
@@ -153,46 +175,23 @@ body {
 }
 
 .booth-container {
-  .card {
-    background-color: rgba(255, 255, 255, 0.75);
+  @media (max-width: 375px) {
+    padding: 0.25rem !important; // Corresponds to 'p-1'
+  }
 
-    max-width: 600px;
-    margin: 0 auto;
+  .description-title {
+    font-weight: bold;
+  }
 
-    @media (max-width: 375px) {
-      padding: 0.25rem !important; // Corresponds to 'p-1'
-    }
+  .responsive-iframe-container {
+    .responsive-iframe {
+      max-width: 500px;
+      position: relative;
+      margin: 0 auto;
 
-    .card-body {
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-
-      .buttons {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
-      }
-  
-      .description-title {
-        font-weight: bold;
-      }
-
-      .text {
-        align-self: flex-start;
-      }
-    }
-
-    .responsive-iframe-container {
-      .responsive-iframe {
-        max-width: 500px;
-        position: relative;
-
-        iframe {
-          aspect-ratio: 16 / 9;
-          width: 100%;
-        }
+      iframe {
+        width: 100%;
+        aspect-ratio: 16/9;
       }
     }
   }
