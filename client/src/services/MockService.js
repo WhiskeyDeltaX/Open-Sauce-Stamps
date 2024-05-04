@@ -2,11 +2,14 @@
 const stampsData = [
   { 
     id: 1, 
+    uuid: 'b10c4592-38fd-4cc8-96e2-e9ab3804f596',
     exhibitName: 'Future Tech', 
-    boothNumber: 'A1', 
+    boothNumber: 'A1',
     maker: 'Tech Innovators', 
     youtubeLink: 'https://www.youtube.com/embed/example1', 
-    channelName: 'Tech Innovators Channel', 
+    channelName: 'Tech Innovators Channel',
+    stampUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/US_Airmail_inverted_Jenny_24c_1918_issue.jpg/640px-US_Airmail_inverted_Jenny_24c_1918_issue.jpg',
+    qrCode: 'a9ad8f89-be30-4584-befb-699fc57636db',
     description: 'Explore cutting-edge technological advancements that are shaping the future. From sustainable energy solutions to smart city innovations, see how technology will change the way we live.' 
   },
   { 
