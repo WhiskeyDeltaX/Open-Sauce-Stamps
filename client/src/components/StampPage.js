@@ -4,7 +4,7 @@ import { UserDataContext } from '../contexts/UserDataContext';
 import { Container, Card, Button } from 'react-bootstrap';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
 import LoadingSpinner from './LoadingSpinner';
-import StampsService from '../services/StampsService';
+import { getStamps } from '../services/StampsService';
 import Stamp from './Stamp';
 import { getAllStamps } from '../services/MockService';
 
@@ -26,7 +26,7 @@ function StampsPage() {
     setError(null);
 
     try {
-      let data = await StampsService.getStamps();
+      let data = await getStamps();
 
       if (!Array.isArray(data)) {
         data = getAllStamps();
@@ -72,7 +72,7 @@ function StampsPage() {
           <Card className="mt-5 card" key={stamp.uuid}>
             <Card.Body>
               <div>
-                <Stamp stamp={stamp} />
+                <Stamp stamp={stamp} userData={userData} />
               </div>
             </Card.Body>
           </Card>

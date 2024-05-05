@@ -73,6 +73,35 @@ body {
   }
 }
 
+.stamp-img {
+  width: 200px;
+  height: 200px;
+  border: 5px dashed #666666;
+  border-radius: 10px;
+  flex-shrink: 0;
+  max-width: 100%;
+  position: relative;
+
+  img {
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .stamp-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0;
+    opacity: 0.85;
+    transform: rotate(-20deg);
+  }
+
+  @media (max-width: 375px) {
+    width: 100px;
+    height: 100px;
+  }
+}
 
 .stamp-container {
   h1 {
@@ -137,27 +166,6 @@ body {
       }
     }
 
-    .stamp-img {
-      width: 200px;
-      height: 200px;
-      border: 5px dashed #666666;
-      border-radius: 10px;
-      flex-shrink: 0;
-      max-width: 100%;
-
-      img {
-        border-radius: 10px;
-        width: 100%;
-        height: 100%;
-      }
-
-
-      @media (max-width: 375px) {
-        width: 100px;
-        height: 100px;
-      }
-    }
-
     .stamp-text {
       flex-grow: 1;
       display: flex;
@@ -193,6 +201,16 @@ body {
         width: 100%;
         aspect-ratio: 16/9;
       }
+    }
+  }
+}
+
+.stamp-collection-container {
+  .card {
+    background-color: rgba(255, 255, 255, 0.75);
+
+    @media (max-width: 375px) {
+      padding: 0.25rem !important; // Corresponds to 'p-1'
     }
   }
 }
