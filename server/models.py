@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 class Stamp(BaseModel):
-    uuid: UUID4
+    uuid: UUID4 = None
     exhibitName: str
     boothNumber: str = None
     maker: str = None

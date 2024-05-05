@@ -2,7 +2,6 @@
 from fastapi import APIRouter, Body, HTTPException, Depends
 from models import Stamp
 from dependencies import get_current_active_admin
-import uuid
 from database import db, stamps_table
 from datetime import datetime
 import os
@@ -10,6 +9,7 @@ import qrcode
 from PIL import Image
 import requests
 from io import BytesIO
+from uuid import UUID, uuid4
 
 router = APIRouter()
 
@@ -19,14 +19,14 @@ async def get_all_stamps():
     return stamps
 
 @router.get("/stamps/{uuid}", response_model=Stamp)
-async def get_stamp_by_uuid(uuid: uuid.UUID):
+async def get_stamp_by_uuid(uuid: str):
     stamp = await stamps_table.find_one({"uuid": uuid})
     if not stamp:
         raise HTTPException(status_code=404, detail="Stamp not found")
     return stamp
 
 @router.get("/collect/{uuid}", response_model=Stamp)
-async def get_collect_by_uuid(uuid: uuid.UUID):
+async def get_collect_by_uuid(uuid: str):
     stamp = await stamps_table.find_one({"qrCode": uuid})
     if not stamp:
         raise HTTPException(status_code=404, detail="Stamp not found")
@@ -35,8 +35,8 @@ async def get_collect_by_uuid(uuid: uuid.UUID):
 @router.post("/stamps", response_model=Stamp, dependencies=[Depends(get_current_active_admin)])
 async def create_stamp(stamp: Stamp):
     # Generate unique identifiers
-    stamp.uuid = str(uuid.uuid4())
-    stamp.qrCode = str(uuid.uuid4())
+    stamp.uuid = str(uuid4())
+    stamp.qrCode = str(uuid4())
     stamp.youtubeLink = str(stamp.youtubeLink)
 
     # Generate QR code
@@ -98,7 +98,7 @@ async def create_stamp(stamp: Stamp):
     return created_stamp
 
 @router.put("/stamps/{uuid}", response_model=Stamp, dependencies=[Depends(get_current_active_admin)])
-async def update_stamp(uuid: uuid.UUID, stamp: Stamp):
+async def update_stamp(uuid: UUID, stamp: Stamp):
     stamp.updated_at = datetime.now()
 
     updated_result = await stamps_table.update_one({"uuid": uuid}, {"$set": stamp.dict(exclude_unset=True)})
@@ -107,7 +107,7 @@ async def update_stamp(uuid: uuid.UUID, stamp: Stamp):
     return await stamps_table.find_one({"uuid": uuid})
 
 @router.delete("/stamps/{uuid}", dependencies=[Depends(get_current_active_admin)])
-async def delete_stamp(uuid: uuid.UUID):
+async def delete_stamp(uuid: UUID):
     delete_result = await stamps_table.delete_one({"uuid": uuid})
     if delete_result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Stamp not found")
