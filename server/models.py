@@ -8,12 +8,16 @@ class Stamp(BaseModel):
     exhibitName: str
     boothNumber: str = None
     maker: str = None
-    youtubeLink: HttpUrl = None
+    youtubeLink: str = None
     channelName: str = None
     qrCode: UUID4 = None
     description: str = None
     createdAt: datetime = None
     updatedAt: datetime = None
+    exhibitorId: str = None
+    bannerUrl: str = None
+    stampUrl: str = None
+    makerWebsite: str = None
 
     class Config:
         json_schema_extra = {
@@ -21,6 +25,7 @@ class Stamp(BaseModel):
                 "uuid": "b10c4592-38fd-4cc8-96e2-e9ab3804f596",
                 "exhibitName": "Future Tech",
                 "boothNumber": "A1",
+                "exhibitorId": "12345",
                 "maker": "Tech Innovators",
                 "youtubeLink": "https://www.youtube.com/embed/example1",
                 "channelName": "Tech Innovators Channel",

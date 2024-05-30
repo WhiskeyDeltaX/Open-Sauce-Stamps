@@ -16,21 +16,63 @@ router = APIRouter()
 @router.get("/stamps", response_model=list[Stamp])
 async def get_all_stamps():
     stamps = await stamps_table.find().to_list(1000)
-    return stamps
+    return [
+        {
+            "uuid": stamp["uuid"],
+            "exhibitName": stamp["exhibitName"] or "",
+            "maker": stamp["maker"] or "",
+            "youtubeLink": stamp["youtubeLink"] or "",
+            "channelName": stamp["channelName"] or "",
+            "description": stamp["description"] or "",
+            "createdAt": stamp["createdAt"],
+            "updatedAt": stamp["updatedAt"],
+            "bannerUrl": "1" if stamp["bannerUrl"] else "0",
+            "stampUrl": "1" if stamp["stampUrl"] else "0",
+            "qrCode": stamp["qrCode"] or "",
+            "makerWebsite": stamp["makerWebsite"]
+        }
+        for stamp in stamps
+    ]
 
 @router.get("/stamps/{uuid}", response_model=Stamp)
 async def get_stamp_by_uuid(uuid: str):
     stamp = await stamps_table.find_one({"uuid": uuid})
     if not stamp:
         raise HTTPException(status_code=404, detail="Stamp not found")
-    return stamp
+    return  {
+        "uuid": stamp["uuid"],
+        "exhibitName": stamp["exhibitName"] or "",
+        "maker": stamp["maker"] or "",
+        "youtubeLink": stamp["youtubeLink"] or "",
+        "channelName": stamp["channelName"] or "",
+        "description": stamp["description"] or "",
+        "createdAt": stamp["createdAt"],
+        "updatedAt": stamp["updatedAt"],
+        "bannerUrl": "1" if stamp["bannerUrl"] else "0",
+        "stampUrl": "1" if stamp["stampUrl"] else "0",
+        "qrCode": stamp["qrCode"] or "",
+        "makerWebsite": stamp["makerWebsite"]
+    }
 
 @router.get("/collect/{uuid}", response_model=Stamp)
 async def get_collect_by_uuid(uuid: str):
     stamp = await stamps_table.find_one({"qrCode": uuid})
     if not stamp:
         raise HTTPException(status_code=404, detail="Stamp not found")
-    return stamp
+    return {
+        "uuid": stamp["uuid"],
+        "exhibitName": stamp["exhibitName"] or "",
+        "maker": stamp["maker"] or "",
+        "youtubeLink": stamp["youtubeLink"] or "",
+        "channelName": stamp["channelName"] or "",
+        "description": stamp["description"] or "",
+        "createdAt": stamp["createdAt"],
+        "updatedAt": stamp["updatedAt"],
+        "bannerUrl": "1" if stamp["bannerUrl"] else "0",
+        "stampUrl": "1" if stamp["stampUrl"] else "0",
+        "qrCode": stamp["qrCode"] or "",
+        "makerWebsite": stamp["makerWebsite"]
+    }
 
 @router.post("/stamps", response_model=Stamp, dependencies=[Depends(get_current_active_admin)])
 async def create_stamp(stamp: Stamp):
@@ -53,7 +95,8 @@ async def create_stamp(stamp: Stamp):
 
     # Embed an image in the QR code (optional)
     qr_img = qr.make_image(fill_color="black", back_color="#EB9722").convert('RGB')
-    logo_path = os.getenv("QR_CODE_IMAGE_PATH")
+    logo_path = os.getenv("QR_CODE_IMAGE_PATH", "../open_sauce_logo_128.jpg")
+
     if logo_path:
         logo = Image.open(logo_path).convert("RGB")
         logo = logo.resize((120, 120), Image.LANCZOS)  # Resize logo as per QR code size
@@ -61,7 +104,7 @@ async def create_stamp(stamp: Stamp):
         qr_img.paste(logo, pos)
 
     # Save QR code image
-    qr_code_path = os.getenv("QR_CODE_PATH", "./qr-codes")
+    qr_code_path = os.getenv("QR_CODE_PATH", "../client/staticapi/qr-codes")
     qr_filename = f"{qr_code_path}/{stamp.qrCode}.png"
     qr_img.save(qr_filename)
 
@@ -80,7 +123,7 @@ async def create_stamp(stamp: Stamp):
         )
 
         if response.status_code == 200:
-            dream_path = os.getenv("DREAM_PATH", "./stamp-icons")
+            dream_path = os.getenv("DREAM_PATH", "../client/staticapi/stamp-icons")
             dream_image = Image.open(BytesIO(response.content))
             dream_image = dream_image.resize((512, 512), Image.LANCZOS)
             dream_image.save(f"{dream_path}/{stamp.uuid}.jpeg", quality=80)

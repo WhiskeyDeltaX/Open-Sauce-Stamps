@@ -14,7 +14,7 @@ function Stamp({ userData, stamp }) {
     <div className="stamp">
       <div className="stamp-body">
         <div className="stamp-img" style={{ cursor: 'pointer' }}>
-          <img src={`https://stamps.opensauce.community/server-static/stamp-icons/${stamp.uuid}.jpeg`} alt="Exhibit"
+          <img src={`https://stamps.opensauce.community/staticapi/stamp-icons/${stamp.uuid}.jpg`} alt="Exhibit"
             style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover', opacity: unlocked ? "1.0" : "0.4" }} />
         </div>
         <div className='stamp-no-mobile'>

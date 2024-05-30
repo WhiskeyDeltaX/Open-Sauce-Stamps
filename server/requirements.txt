@@ -10,3 +10,11 @@ pyjwt
 httpx
 motor
 qrcode[pil]
+pandas 
+gspread 
+oauth2client
+typing_inspect
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
