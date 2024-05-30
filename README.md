@@ -43,6 +43,22 @@ server {
     location / {
         root /stamps/client/build;
         try_files \$uri \$uri/ =404;
+
+        # Enable Gzip Compression
+        gzip on;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+        gzip_proxied any;
+        gzip_min_length 256;
+
+        # Enable Browser Caching
+        expires 1d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        access_log off;
     }
 
     location /api {
