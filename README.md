@@ -1,6 +1,7 @@
 
 # Dev Setup
 
+```Bash
 sudo apt update
 
 # Install Code-Server (VSCode in the Cloud) (Optional)
@@ -84,3 +85,4 @@ screen -S server -d -m ./run.sh
 cd ../client
 npm install
 echo "REACT_APP_API_URL=https://stamps.opensauce.community/api/v1" > .env
+```
