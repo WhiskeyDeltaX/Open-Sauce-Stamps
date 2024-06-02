@@ -10,68 +10,94 @@ from PIL import Image
 import requests
 from io import BytesIO
 from uuid import UUID, uuid4
+from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
+
+class StampResponse(BaseModel):
+    uuid: str
+    exhibitName: str
+    maker: str
+    youtubeLink: str
+    channelName: str
+    description: str
+    bannerUrl: str
+    stampUrl: str
+    makerWebsite: str
+
+class CollectStampRequest(BaseModel):
+    email: EmailStr
+    uuid: str
 
 @router.get("/stamps", response_model=list[Stamp])
 async def get_all_stamps():
     stamps = await stamps_table.find().to_list(1000)
     return [
         {
-            "uuid": stamp["uuid"],
-            "exhibitName": stamp["exhibitName"] or "",
-            "maker": stamp["maker"] or "",
-            "youtubeLink": stamp["youtubeLink"] or "",
-            "channelName": stamp["channelName"] or "",
-            "description": stamp["description"] or "",
-            "createdAt": stamp["createdAt"],
-            "updatedAt": stamp["updatedAt"],
-            "bannerUrl": "1" if stamp["bannerUrl"] else "0",
-            "stampUrl": "1" if stamp["stampUrl"] else "0",
-            "qrCode": stamp["qrCode"] or "",
-            "makerWebsite": stamp["makerWebsite"]
+            "uuid": stamp.get("uuid", ""),
+            "exhibitName": stamp.get("exhibitName", "") or "",
+            "maker": stamp.get("maker", "") or "",
+            "youtubeLink": stamp.get("youtubeLink", "") or "",
+            "channelName": stamp.get("channelName", "") or "",
+            "description": stamp.get("description", "") or "",
+            "createdAt": stamp.get("createdAt"),
+            "updatedAt": stamp.get("updatedAt"),
+            "bannerUrl": "1" if stamp.get("bannerUrl") else "0",
+            "stampUrl": "1" if stamp.get("stampUrl") else "0",
+            "qrCode": stamp.get("qrCode", "") or "",
+            "makerWebsite": stamp.get("makerWebsite", "") or ""
         }
         for stamp in stamps
     ]
 
-@router.get("/stamps/{uuid}", response_model=Stamp)
+@router.get("/stamps/{uuid}", response_model=StampResponse)
 async def get_stamp_by_uuid(uuid: str):
     stamp = await stamps_table.find_one({"uuid": uuid})
     if not stamp:
         raise HTTPException(status_code=404, detail="Stamp not found")
     return  {
-        "uuid": stamp["uuid"],
-        "exhibitName": stamp["exhibitName"] or "",
-        "maker": stamp["maker"] or "",
-        "youtubeLink": stamp["youtubeLink"] or "",
-        "channelName": stamp["channelName"] or "",
-        "description": stamp["description"] or "",
-        "createdAt": stamp["createdAt"],
-        "updatedAt": stamp["updatedAt"],
-        "bannerUrl": "1" if stamp["bannerUrl"] else "0",
-        "stampUrl": "1" if stamp["stampUrl"] else "0",
-        "qrCode": stamp["qrCode"] or "",
-        "makerWebsite": stamp["makerWebsite"]
+        "uuid": stamp.get("uuid", ""),
+        "exhibitName": stamp.get("exhibitName", "") or "",
+        "maker": stamp.get("maker", "") or "",
+        "youtubeLink": stamp.get("youtubeLink", "") or "",
+        "channelName": stamp.get("channelName", "") or "",
+        "description": stamp.get("description", "") or "",
+        "bannerUrl": "1" if stamp.get("bannerUrl") else "0",
+        "stampUrl": "1" if stamp.get("stampUrl") else "0",
+        "makerWebsite": stamp.get("makerWebsite", "") or ""
     }
 
-@router.get("/collect/{uuid}", response_model=Stamp)
-async def get_collect_by_uuid(uuid: str):
-    stamp = await stamps_table.find_one({"qrCode": uuid})
+@router.post("/collect", response_model=StampResponse)
+async def collect_stamp(data: CollectStampRequest):
+    stamp = await stamps_table.find_one({"qrCode": data.uuid})
+
     if not stamp:
         raise HTTPException(status_code=404, detail="Stamp not found")
+
+    email = data.email.lower()
+    user = await db.users.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if the user already has the stamp
+    if f"stamps.{stamp['uuid']}" not in user:
+        new_stamp = {f"stamps.{stamp['uuid']}": {"collected": datetime.utcnow()}}
+
+        await db.users.update_one(
+            {"email": email},
+            {"$set": new_stamp}
+        )
+
     return {
-        "uuid": stamp["uuid"],
-        "exhibitName": stamp["exhibitName"] or "",
-        "maker": stamp["maker"] or "",
-        "youtubeLink": stamp["youtubeLink"] or "",
-        "channelName": stamp["channelName"] or "",
-        "description": stamp["description"] or "",
-        "createdAt": stamp["createdAt"],
-        "updatedAt": stamp["updatedAt"],
-        "bannerUrl": "1" if stamp["bannerUrl"] else "0",
-        "stampUrl": "1" if stamp["stampUrl"] else "0",
-        "qrCode": stamp["qrCode"] or "",
-        "makerWebsite": stamp["makerWebsite"]
+        "uuid": stamp.get("uuid", ""),
+        "exhibitName": stamp.get("exhibitName", "") or "",
+        "maker": stamp.get("maker", "") or "",
+        "youtubeLink": stamp.get("youtubeLink", "") or "",
+        "channelName": stamp.get("channelName", "") or "",
+        "description": stamp.get("description", "") or "",
+        "bannerUrl": "1" if stamp.get("bannerUrl") else "0",
+        "stampUrl": "1" if stamp.get("stampUrl") else "0",
+        "makerWebsite": stamp.get("makerWebsite", "") or ""
     }
 
 @router.post("/stamps", response_model=Stamp, dependencies=[Depends(get_current_active_admin)])

@@ -17,15 +17,17 @@ function CollectStampPage() {
   useEffect(() => {
     async function handleCollect() {
       try {
-        const stampData = await collectStamp(uuid);
-        console.log(userData.stamps);
+        const stampData = await collectStamp(userData.email, uuid);
 
-        if (!userData.stamps.includes(stampData.uuid)) {
+        if (!userData.stamps || !userData.stamps[stampData.uuid]) {
           setAlreadyUnlocked(false);
           setMessage(`Congratulations on collecting a new stamp: ${stampData.exhibitName}!`);
           setUserData({
             ...userData,
-            stamps: [...userData.stamps, stampData.uuid]  // Assuming you want to store only the UUID in the array
+            stamps: {
+              ...userData.stamps,
+              [stampData.uuid]: { collected: new Date().toISOString() }
+            }
           });
         } else {
           setAlreadyUnlocked(true);
@@ -47,6 +49,7 @@ function CollectStampPage() {
   // Redirect to stamps page if userData is already present
   if (!userData.fullName && !userData.email) {
     console.log("Navigating stamp to /");
+    localStorage.setItem('CollectStamp', uuid);
     return <Navigate to="/" />;
   }
 

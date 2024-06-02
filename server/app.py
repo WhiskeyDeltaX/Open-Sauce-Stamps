@@ -99,9 +99,7 @@ def generate_stamp_icon(stamp, path):
 
 async def process_row(row):
     exhibitor_id = row[2]
-    print("Getting table data")
     existing_stamp = await stamps_table.find_one({"exhibitorId": exhibitor_id}) or {}
-    print("Got table data")
 
     stamp_data = {
         "uuid": existing_stamp.get("uuid", str(uuid4())),
@@ -118,9 +116,6 @@ async def process_row(row):
         "stampUrl": existing_stamp.get("stampUrl", "")
     }
 
-    print("Made dict?")
-
-    print("Existing", existing_stamp)
     # print("Stamp data", stamp_data)
 
     # Handle Google Drive image
@@ -150,12 +145,8 @@ async def process_row(row):
         qr_code_path = os.getenv("QR_CODE_PATH", "../client/staticapi/qr-codes")
         qr_filename = f"{qr_code_path}/{stamp_data['qrCode']}.png"
 
-        print("Did we find QR?", qr_filename, os.path.isfile(qr_filename))
-
         if not os.path.isfile(qr_filename):
             generate_qr_code(stamp_data)
-
-    print("Processed")
 
 async def download_and_store_image(url, image_path):
     # Convert Google Drive link to file ID
@@ -200,11 +191,9 @@ app = FastAPI()
 
 async def check_google_sheets_new_data():
     while True:
-        print("Running Repeat Event Get Google Sheets")
         sheet_id = os.getenv('EXHIBITORS_SHEET_ID', 'exhibitorsheetid')
         sheet_name = os.getenv('EXHIBITORS_SHEET_NAME', 'exhibitorsheetid')
         data = await fetch_data_from_google_sheets(sheet_id, sheet_name)
-        print("Google Sheets Data", data)
 
         for _, row in data.iterrows():
             try:

@@ -12,9 +12,9 @@ export const getStamps = async () => {
   }
 };
 
-export const collectStamp = async (uuid) => {
+export const collectStamp = async (email, uuid) => {
   try {
-    const response = await axios.get(`${API_URL}/collect/${uuid}`);
+    const response = await axios.post(`${API_URL}/collect`, { email, uuid });
     if (response.status === 200) {
       return response.data; // Assuming the API returns the stamp data directly
     } else {

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, HttpUrl, EmailStr, UUID4
-from typing import Optional
+from typing import Optional, Dict, List
 import uuid
 from datetime import datetime
 
@@ -34,8 +34,12 @@ class Stamp(BaseModel):
             }
         }
 
+class CollectedStamp(BaseModel):
+    collected: datetime
+
 class User(BaseModel):
     fullName: str
     email: EmailStr
-    stamps: list[str]
-    groups: list[str]
+    stamps: Dict[str, CollectedStamp]
+    groups: List[str]
+    createdAt: datetime = None

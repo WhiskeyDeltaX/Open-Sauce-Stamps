@@ -20,6 +20,29 @@ function BoothModal({ show, onHide, stamp }) {
     );
   }
 
+  const getYouTubeEmbedUrl = (url) => {
+    try {
+      const urlObj = new URL(url);
+      let videoId;
+  
+      if (urlObj.hostname === 'youtu.be') {
+        videoId = urlObj.pathname.slice(1); // Get the video ID from the path
+      } else if (urlObj.hostname === 'www.youtube.com' && urlObj.searchParams.has('v')) {
+        videoId = urlObj.searchParams.get('v'); // Get the video ID from the query parameters
+      } else {
+        return null; // Not a valid YouTube URL
+      }
+  
+      return `https://www.youtube.com/embed/${videoId}`;
+    } catch (e) {
+      return null; // Invalid URL
+    }
+  };
+
+  const embedUrl = getYouTubeEmbedUrl(stamp.youtubeLink);
+
+  console.log("Stamp Modal", stamp);
+
   return (
     <Modal show={show} onHide={onHide} size="lg" centered scrollable>
       <Modal.Header closeButton>
@@ -28,17 +51,19 @@ function BoothModal({ show, onHide, stamp }) {
       <Modal.Body className="booth-container p-3">
         <h2>{stamp.exhibitName}</h2>
         <h5 className="text-muted">by {stamp.maker}</h5>
-        {(stamp.youtubeLink.includes("watch?") || stamp.youtubeLink.includes(".be/")) && <div className="responsive-iframe-container">
+        {embedUrl && <div className="responsive-iframe-container">
           <div className="responsive-iframe pt-3 pb-3">
-            <iframe src={stamp.youtubeLink} allowFullScreen title={stamp.exhibitName}></iframe>
+            <iframe src={embedUrl} allowFullScreen title={stamp.exhibitName}></iframe>
           </div>
         </div>}
         <p className="text-center">{stamp.channelName}</p>
         <p className="mb-2 text description-title">Description</p>
         <p className="text">{stamp.description}</p>
         <div style={{maxWidth: "200px", margin: "20px auto 0"}}>
-          <img src={`https://stamps.opensauce.community/staticapi/qr-codes/${stamp.qrCode}.png`} alt="Exhibit QR Code"
+          <a href={`https://stamps.opensauce.community/collect/${stamp.qrCode}`}>
+            <img src={`https://stamps.opensauce.community/staticapi/qr-codes/${stamp.qrCode}.png`} alt="Exhibit QR Code"
               style={{ maxWidth: '100%', maxHeight: '100%' }} />
+            </a>
         </div>
       </Modal.Body>
       <Modal.Footer>

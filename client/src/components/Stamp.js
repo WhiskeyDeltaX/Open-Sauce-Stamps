@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import BoothModal from './BoothModal';
-import stampImage from "../open_sauce_logo_red.png"
+import stampImage from "../no_collected_stamp.png"
 
 function Stamp({ userData, stamp }) {
   const [modalShow, setModalShow] = useState(false);
 
-  const unlocked = userData.stamps.includes(stamp.uuid);
+  const unlocked = userData.stamps && userData.stamps[stamp.uuid];
 
-  console.log(userData.stamps, stamp.uuid)
+  let stampUrl = `https://stamps.opensauce.community/staticapi/stamp-icons/${stamp.uuid}.jpg`;
+
+  if (!unlocked) {
+    stampUrl = stampImage;
+  }
 
   return (
     <div className="stamp">
       <div className="stamp-body">
         <div className="stamp-img" style={{ cursor: 'pointer' }}>
-          <img src={`https://stamps.opensauce.community/staticapi/stamp-icons/${stamp.uuid}.jpg`} alt="Exhibit"
+          <img src={stampUrl} alt="Exhibit"
             style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover', opacity: unlocked ? "1.0" : "0.4" }} />
         </div>
         <div className='stamp-no-mobile'>
@@ -35,11 +39,11 @@ function Stamp({ userData, stamp }) {
           More Information
         </Button>
       </div>
-      <BoothModal
+      {modalShow && <BoothModal
         show={modalShow}
         onHide={() => setModalShow(false)}
         stamp={stamp}
-      />
+      />}
     </div>
   );
 }

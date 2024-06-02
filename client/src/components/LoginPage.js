@@ -1,26 +1,67 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { UserDataContext } from '../contexts/UserDataContext';
-import { Container, Form, Button, Card } from 'react-bootstrap';
+import { Container, Form, Button, Card, ToggleButtonGroup, ToggleButton, Alert } from 'react-bootstrap';
 import banner from '../os-banner.jpg';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
+import { registerUser, loginUser } from '../services/UsersService';
 
 function LoginPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [mode, setMode] = useState('login');
+  const [error, setError] = useState('');
   const { userData, setUserData } = useContext(UserDataContext);
   const navigate = useNavigate();
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Redirect to stamps page if userData is already present
   if (userData.fullName || userData.email) {
-    console.log("Navigating / to stamps")
     return <Navigate to="/stamps" />;
   }
 
-  const handleLogin = () => {
-    setUserData({ fullName, email, stamps: [] });
-    navigate('/stamps');
+  const handleToggle = (val) => {
+    setMode(val);
+    setError('');
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setError('');
+      if (mode === 'register') {
+        const user = await registerUser(fullName, email);
+        console.log("User registered returned:", user);
+        setUserData({ fullName: user.full_name, email: user.email, stamps: [] });
+      } else {
+        const user = await loginUser(email);
+        console.log("User returned:", user);
+        setUserData({ fullName: user.full_name, email: user.email, stamps: user.stamps });
+      }
+
+      const collectStamp = localStorage.getItem('CollectStamp');
+      localStorage.setItem('CollectStamp', "");
+
+      if (collectStamp && collectStamp != "null") {
+        navigate(`/collect/${collectStamp}`);
+      } else {
+        navigate('/stamps');
+      }
+    } catch (error) {
+      if (error && error.response && error.response.data && error.response.data.detail) {
+        const detail = error.response?.data?.detail;
+        console.log("Details", detail);
+
+        if (error.response?.status === 422) {
+          setError('Invalid Name or Email');
+        } else if (Array.isArray(detail)) {
+          setError('An error occurred');
+        } else {
+          setError(detail || 'An error occurred');
+        }
+      } else {
+        setError('Invalid Name or Email');
+      }
+    }
   };
 
   return (
@@ -32,16 +73,27 @@ function LoginPage() {
             <p className="mb-4 text-muted">
               This app will help you keep track of the QR codes you've scanned for the Open Sauce 2024 Stamp Hunt.
             </p>
+            <ToggleButtonGroup type="radio" name="mode" value={mode} onChange={handleToggle} className="mb-3"
+                style={{width: "100%", padding: "10px 20px 10px"}}>
+              <ToggleButton id="tbg-radio-1" value="login">
+                Log In
+              </ToggleButton>
+              <ToggleButton id="tbg-radio-2" value="register">
+                Register
+              </ToggleButton>
+            </ToggleButtonGroup>
             <Form className="login-form">
-              <Form.Group className="mb-3" controlId="fullName">
-                <Form.Label>Full Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                />
-              </Form.Group>
+              {mode === 'register' && (
+                <Form.Group className="mb-3" controlId="fullName">
+                  <Form.Label>Full Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                  />
+                </Form.Group>
+              )}
               <Form.Group className="mb-3" controlId="email">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
@@ -51,11 +103,12 @@ function LoginPage() {
                   onChange={e => setEmail(e.target.value)}
                 />
               </Form.Group>
-              <p className="text-muted mb-4">
+              {error && <Alert variant="danger" style={{width: "100%"}}>{error}</Alert>}
+              <p className="text-muted mb-4 mt-2">
                 Digital prizes will be distributed via email.
               </p>
-              <Button variant="primary" onClick={handleLogin} disabled={!email || !fullName}>
-                Get Started
+              <Button variant="primary" onClick={handleSubmit} disabled={!email || (mode === 'register' && !fullName)}>
+                {mode === 'register' ? 'Register' : 'Log In'}
               </Button>
             </Form>
             <p className="mt-4">
@@ -77,9 +130,8 @@ function LoginPage() {
         </Card>
       </Container>
       <img src={banner} alt="Decorative" className="bottom-image" />
-      <PrivacyPolicyModal show={showPrivacyModal}
-        handleClose={() => setShowPrivacyModal(false)} />
-    </div >
+      <PrivacyPolicyModal show={showPrivacyModal} handleClose={() => setShowPrivacyModal(false)} />
+    </div>
   );
 }
 

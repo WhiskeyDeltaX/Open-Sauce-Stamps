@@ -32,8 +32,19 @@ function StampsPage() {
         data = getAllStamps();
       }
 
-      localStorage.setItem('Stamps', JSON.stringify(data));
-      setStamps(data);
+      // Sort stamps alphabetically
+      data.sort((a, b) => a.exhibitName.localeCompare(b.exhibitName));
+
+      const userStamps = userData.stamps || {};
+
+      // Move unlocked stamps to the end
+      const unlockedStamps = data.filter(stamp => userStamps[stamp.uuid]);
+      const lockedStamps = data.filter(stamp => !userStamps[stamp.uuid]);
+
+      const sortedData = [...lockedStamps, ...unlockedStamps];
+
+      localStorage.setItem('Stamps', JSON.stringify(sortedData));
+      setStamps(sortedData);
     } catch (error) {
       setError('Failed to fetch stamps.');
       console.error(error);
@@ -45,8 +56,6 @@ function StampsPage() {
   useEffect(() => {
     fetchStamps();
   }, []);
-
-  console.log("Stamps?", stamps);
 
   // Redirect to stamps page if userData is already present
   if (!userData.fullName && !userData.email) {
@@ -79,7 +88,7 @@ function StampsPage() {
         ))}
       </div>
       <div className="d-flex align-items-center justify-content-center flex-column">
-        <Button onClick={handleDeleteData} variant="secondary">Delete Login Data</Button>
+        <Button onClick={handleDeleteData} variant="secondary">Log Out</Button>
         <Button variant="link" onClick={() => setShowPrivacyModal(true)} className="mt-3 privacy-policy">
           Read the Privacy Policy
         </Button>
