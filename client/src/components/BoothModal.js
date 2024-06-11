@@ -59,12 +59,12 @@ function BoothModal({ show, onHide, stamp }) {
         <p className="text-center">{stamp.channelName}</p>
         <p className="mb-2 text description-title">Description</p>
         <p className="text">{stamp.description}</p>
-        <div style={{maxWidth: "200px", margin: "20px auto 0"}}>
+        {stamp.qrCode && <div style={{maxWidth: "200px", margin: "20px auto 0"}}>
           <a href={`https://stamps.opensauce.community/collect/${stamp.qrCode}`}>
             <img src={`https://stamps.opensauce.community/staticapi/qr-codes/${stamp.qrCode}.png`} alt="Exhibit QR Code"
               style={{ maxWidth: '100%', maxHeight: '100%' }} />
             </a>
-        </div>
+        </div>}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>Close</Button>

@@ -44,7 +44,7 @@ async def get_all_stamps():
             "updatedAt": stamp.get("updatedAt"),
             "bannerUrl": "1" if stamp.get("bannerUrl") else "0",
             "stampUrl": "1" if stamp.get("stampUrl") else "0",
-            "qrCode": stamp.get("qrCode", "") or "",
+            # "qrCode": stamp.get("qrCode", "") or "",
             "makerWebsite": stamp.get("makerWebsite", "") or ""
         }
         for stamp in stamps

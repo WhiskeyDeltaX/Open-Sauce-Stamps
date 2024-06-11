@@ -8,55 +8,87 @@ const PrivacyPolicyModal = ({ show, handleClose }) => {
         <Modal.Title>Privacy Policy for Open Sauce</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p><strong>Effective Date:</strong> [Insert Date]</p>
-        <p>Welcome to Open Sauce ("we", "us", "our"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy policy or our practices with regard to your personal information, please contact us at [Insert Contact Information].</p>
-        <p>This privacy policy applies to all information collected through our mobile application, "Open Sauce" (the "App"), and/or any related services, sales, marketing, or events (we refer to them collectively in this privacy policy as the "Services").</p>
-        
-        <h5>1. Information We Collect</h5>
-        <p>We collect personal information that you voluntarily provide to us when registering on the App, expressing an interest in obtaining information about us or our products and services, when participating in activities on the App or otherwise contacting us.</p>
-        <ul>
-          <li>Full Name</li>
-          <li>Email Address</li>
-          <li>Data Collected from QR Code Scanning: This includes the booths you visit and the stamps you collect.</li>
-        </ul>
-        
-        <h5>2. How We Use Your Information</h5>
-        <p>We use personal information collected via our App for a variety of business purposes described below:</p>
-        <ul>
-          <li>To Provide and Manage Our Services: We use your information to maintain your account, provide you with support, and ensure the security of our services.</li>
-          <li>For Email Communications: We may use your email address to communicate with you about updates, security alerts, and account management issues.</li>
-          <li>To Deliver and Facilitate Delivery of Services to the User: We may use your information to provide you with the requested service.</li>
-        </ul>
-        
-        <h5>3. Will Your Information Be Shared With Anyone?</h5>
-        <p>We only share information with your consent, to comply with laws, to provide you with services, to protect your rights, or to fulfill business obligations. We may process or share your data on the following basis:</p>
-        <ul>
-          <li>Legitimate Interests: We may process your data when it is reasonably necessary to achieve our legitimate business interests.</li>
-          <li>Performance of a Contract: Where we have entered into a contract with you, we may process your personal information to fulfill the terms of our contract.</li>
-          <li>Legal Obligations: We may disclose your information where we are legally required to do so in order to comply with applicable law, governmental requests, a judicial proceeding, court order, or legal process.</li>
-        </ul>
-        
-        <h5>4. How Do We Keep Your Information Safe?</h5>
-        <p>We aim to protect your personal information through a system of organizational and technical security measures. We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process.</p>
-        
-        <h5>5. Do We Use Cookies and Other Tracking Technologies?</h5>
-        <p>We may use cookies and similar tracking technologies (like web beacons and pixels) to access or store information.</p>
-        
-        <h5>6. What Are Your Privacy Rights?</h5>
-        <p>You have rights with respect to your personal information, including the right to access, correct, or delete the information we hold about you.</p>
-        
-        <h5>7. Children's Privacy</h5>
-        <p>The Services are not intended for use by children under the age of 13. We do not knowingly collect data from children under 13.</p>
-        
-        <h5>8. Changes to This Privacy Policy</h5>
-        <p>We may update this privacy policy from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible.</p>
-        
-        <h5>9. How to Contact Us</h5>
-        <p>If you have questions or comments about this policy, you may email us at [Insert Email Address] or by post to:
-        </p>
-        <p>[Insert Your Company's Name]</p>
-        <p>[Insert Your Company's Address]</p>
-        <p>We thank you for using Open Sauce.</p>
+        <div class="container">
+          <h5>Effective Date</h5>
+          <p>May 6th, 2024</p>
+
+          <h5>Welcome</h5>
+          <p>Welcome to the unofficial Open Sauce QR Code Hunt (the “Hunt”). The organizers of this Hunt (“we,” “us,” or “our”) are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this Privacy Policy or our practices with regard to your personal information, please contact us at <a href="mailto:help@opensauce.community">help@opensauce.community</a>.</p>
+          <div class="explanation">
+            <p>This section introduces the purpose of the Privacy Policy and provides contact information for any questions or concerns.</p>
+          </div>
+
+          <h5>Scope</h5>
+          <p>This Privacy Policy applies to all information collected through our web application (stamps.opensauce.community; the "App") and/or any related services, sales, marketing, or events (collectively referred to as the "Services").</p>
+          <div class="explanation">
+            <p>This section explains where and how the Privacy Policy applies, including the web app and related services.</p>
+          </div>
+
+          <h5>Information Collection</h5>
+          <p>We collect personal information that you voluntarily provide to us when registering on the App.</p>
+          <ul>
+            <li>Full Name</li>
+            <li>Email Address</li>
+            <li>Data Collected from QR Code Scanning: This includes the booths you visit and the stamps you collect.</li>
+          </ul>
+          <div class="explanation">
+            <p>This section lists the types of information collected from users, such as name, email, and QR code scanning data.</p>
+          </div>
+
+          <h5>Usage of Information</h5>
+          <p>We use personal information collected via our App for a variety of business purposes:</p>
+          <ul>
+            <li>Provide and Manage Our Services: We use your information to maintain your account, provide support, and ensure security.</li>
+            <li>Email Communications: We may use your email to communicate updates, security alerts, Services, and Hunt prizes.</li>
+          </ul>
+          <div class="explanation">
+            <p>This section describes how the collected information is used, such as managing services and sending email communications.</p>
+          </div>
+
+          <h5>Information Sharing</h5>
+          <p>We only share information with your consent, to comply with laws, or to fulfill obligations of the Services offered. Otherwise, your data will not be shared and will be deleted one week after Open Sauce 2024.</p>
+          <div class="explanation">
+            <p>This section explains when your information might be shared and assures that data will be deleted after a specific period.</p>
+          </div>
+
+          <h5>Data Security</h5>
+          <p>We have implemented appropriate security measures to protect the personal information we receive through the App. No person(s), organizations, or their affiliates will have access to any of the information provided through the App.</p>
+          <div class="explanation">
+            <p>This section outlines the security measures taken to protect your personal information.</p>
+          </div>
+
+          <h5>Cookies and Tracking</h5>
+          <p>We may use cookies and similar tracking technologies (like web beacons and pixels) to access or store information.</p>
+          <div class="explanation">
+            <p>This section mentions the use of cookies and other tracking technologies to store information.</p>
+          </div>
+
+          <h5>Your Privacy Rights</h5>
+          <p>You have rights with respect to your personal information, including the right to access, correct, or delete the information we hold about you.</p>
+          <div class="explanation">
+            <p>This section informs you of your rights regarding your personal information.</p>
+          </div>
+
+          <h5>Children's Privacy</h5>
+          <p>The Services are not intended for use by children under the age of 13. We do not knowingly collect data from children under 13.</p>
+          <div class="explanation">
+            <p>This section states that the services are not for children under 13 and that no data is knowingly collected from them.</p>
+          </div>
+
+          <h5>Policy Changes</h5>
+          <p>We may update this privacy policy from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible.</p>
+          <div class="explanation">
+            <p>This section explains that the privacy policy may be updated and how you will know if it has been changed.</p>
+          </div>
+
+          <h5>Contact Us</h5>
+          <p>If you have questions or comments about this policy, you may email us at <a href="mailto:help@opensauce.community">help@opensauce.community</a>.</p>
+          <div class="explanation">
+            <p>This section provides contact information for any questions or comments about the policy.</p>
+          </div>
+
+          <p>Thank you for participating in our Hunt.</p>
+        </div>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>

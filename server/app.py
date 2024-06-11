@@ -13,7 +13,6 @@ import models
 import requests
 from routers import user, stamps, auth
 import qrcode
-from PIL import Image
 from io import BytesIO
 import os.path
 import asyncio
@@ -21,6 +20,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import io
+from PIL import Image, ImageDraw, ImageFont
 
 # Load environment variables from .env file
 load_dotenv()
@@ -57,7 +57,7 @@ def generate_qr_code(stamp):
     qr.make(fit=True)
 
     # Embed an image in the QR code (optional)
-    qr_img = qr.make_image(fill_color="black", back_color="#EB9722").convert('RGB')
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
     logo_path = os.getenv("QR_CODE_IMAGE_PATH", "./open_sauce_logo_128.jpg")
 
     if logo_path:
@@ -66,10 +66,29 @@ def generate_qr_code(stamp):
         pos = ((qr_img.size[0] - logo.size[0]) // 2, (qr_img.size[1] - logo.size[1]) // 2)
         qr_img.paste(logo, pos)
 
+    # Add space at the bottom
+    extra_space = int(os.getenv('QR_CODE_EXTRA_SPACE', 50))  # Customize the extra space
+    new_height = qr_img.size[1] + extra_space
+    new_img = Image.new('RGB', (qr_img.size[0], new_height), 'white')
+    new_img.paste(qr_img, (0, 0))
+
+    # Add text
+    draw = ImageDraw.Draw(new_img)
+    font_path = os.getenv("FONT_PATH", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")  # Customize the font path
+    font_size = int(os.getenv("FONT_SIZE", 16))  # Customize the font size
+    font = ImageFont.truetype(font_path, font_size)
+    text = stamp["exhibitName"]
+    text_bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = text_bbox[2] - text_bbox[0]
+    text_height = text_bbox[3] - text_bbox[1]
+    text_x = (new_img.size[0] - text_width) // 2
+    text_y = qr_img.size[1] + (extra_space - text_height) // 2 - 10
+    draw.text((text_x, text_y), text, fill="black", font=font)
+
     # Save QR code image
     qr_code_path = os.getenv("QR_CODE_PATH", "../client/staticapi/qr-codes")
     qr_filename = f"{qr_code_path}/{stamp['qrCode']}.png"
-    qr_img.save(qr_filename)
+    new_img.save(qr_filename)
 
 def generate_stamp_icon(stamp, path):
     if stamp["description"]:
@@ -116,6 +135,7 @@ async def process_row(row):
         "stampUrl": existing_stamp.get("stampUrl", "")
     }
 
+    print("Looking at stamp", stamp_data["exhibitName"])
     # print("Stamp data", stamp_data)
 
     # Handle Google Drive image
@@ -123,8 +143,12 @@ async def process_row(row):
     image_path = os.path.join(os.getenv("STAMP_PATH", "../client/staticapi/stamp-icons"), f"{stamp_data['uuid']}.jpg")
 
     if "drive.google.com" in image_url and (image_url != stamp_data["stampUrl"] or not os.path.isfile(image_path)):
-        await download_and_store_image(image_url, image_path)
-        stamp_data["stampUrl"] = image_url
+        print("Stamp Data", stamp_data)
+        try:
+            await download_and_store_image(image_url, image_path)
+            stamp_data["stampUrl"] = image_url
+        except Exception as e:
+            print("Failed to download stamp URL", e)
     elif not existing_stamp and not image_url:
         generate_stamp_icon(image_path)
 
@@ -133,8 +157,12 @@ async def process_row(row):
     image_path = os.path.join(os.getenv("EXHIBIT_BANNER_PATH", "../client/staticapi/exhibit-banners"), f"{stamp_data['uuid']}.jpg")
 
     if "drive.google.com" in image_url and (image_url != stamp_data["bannerUrl"] or not os.path.isfile(image_path)):
-        await download_and_store_image(image_url, image_path)
-        stamp_data["bannerUrl"] = image_url
+        # try:
+        #     await download_and_store_image(image_url, image_path)
+        #     stamp_data["bannerUrl"] = image_url
+        # except Exception as e:
+        #     print("Failed to download banner URL", e)
+        pass
 
     if not existing_stamp:
         await stamps_table.insert_one(stamp_data)
@@ -147,6 +175,9 @@ async def process_row(row):
 
         if not os.path.isfile(qr_filename):
             generate_qr_code(stamp_data)
+
+    base_url = os.getenv('SITE_BASE_URL', 'http://example.com')
+    return f"{base_url}/staticapi/qr-codes/{stamp_data['qrCode']}.png"
 
 async def download_and_store_image(url, image_path):
     # Convert Google Drive link to file ID
@@ -187,6 +218,17 @@ def save_response_content(response, destination):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
 
+async def write_data_to_google_sheets(sheet_id, sheet_name, data):
+    # Open the Google Sheet
+    sheet = client.open_by_key(sheet_id)
+    worksheet = sheet.worksheet(sheet_name)
+
+    # Convert DataFrame to a list of lists
+    data_list = data.values.tolist()
+
+    # Update the worksheet with the new data
+    worksheet.update('A1', [data.columns.tolist()] + data_list)
+
 app = FastAPI()
 
 async def check_google_sheets_new_data():
@@ -195,11 +237,25 @@ async def check_google_sheets_new_data():
         sheet_name = os.getenv('EXHIBITORS_SHEET_NAME', 'exhibitorsheetid')
         data = await fetch_data_from_google_sheets(sheet_id, sheet_name)
 
-        for _, row in data.iterrows():
+        # Identify the last occurrence of each exhibitor_id
+        data['index'] = data.index
+        last_occurrences = data.groupby(data.columns[2])['index'].max()
+
+        updated_rows = []
+
+        for idx, row in data.loc[last_occurrences].iterrows():
             try:
-                await process_row(row)
+                processed_value = await process_row(row)
+
+                if pd.isna(row['QR Code URL']) or not row['QR Code URL']:
+                    data.at[idx, 'QR Code URL'] = processed_value  # Write the value into Column L
+                    updated_rows.append(idx)
+                    print("Updating the data at L")
             except Exception as e:
                 print("Failed to process row:", e)
+
+        if updated_rows:
+            await write_data_to_google_sheets(sheet_id, sheet_name, data)
 
         await asyncio.sleep(900)  # Sleep for 15 minutes
 
